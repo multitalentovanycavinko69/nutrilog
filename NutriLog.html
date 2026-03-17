@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)file:///C:/Users/balal/Downloads/nutrilog_1.html -->
+<html lang="sk"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriLog</title>
+<link href="./NutriLog_files/css2" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --border: #E8E4DC;
+    --text: #1A1A18;
+    --muted: #8A8880;
+    --accent: #1A1A18;
+    --green: #2D6A4F;
+    --green-bg: #EAF3EE;
+    --amber: #92400E;
+    --amber-bg: #FEF3C7;
+    --red: #9B1C1C;
+    --red-bg: #FEE2E2;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .app {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .header {
+    margin-bottom: 2rem;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .header p {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* API KEY SETUP */
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .setup-card h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .setup-card p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .key-row {
+    display: flex;
+    gap: 8px;
+  }
+  .key-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .key-input:focus { outline: none; border-color: var(--text); }
+  .key-btn {
+    padding: 10px 18px;
+    background: var(--text);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .key-btn:hover { opacity: 0.85; }
+  .key-saved {
+    display: none;
+    font-size: 13px;
+    color: var(--green);
+    margin-top: 8px;
+  }
+
+  /* INPUT CARD */
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .input-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: block;
+  }
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    resize: none;
+    line-height: 1.6;
+    min-height: 130px;
+  }
+  textarea:focus { outline: none; border-color: var(--text); }
+  textarea::placeholder { color: #C0BDB5; }
+
+  .goal-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .goal-row label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .goal-row input {
+    width: 90px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    text-align: center;
+  }
+  .goal-row input:focus { outline: none; border-color: var(--text); }
+  .goal-row span { font-size: 13px; color: var(--muted); }
+
+  /* BUTTON */
+  .analyze-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--text);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .analyze-btn:hover { opacity: 0.88; }
+  .analyze-btn:active { transform: scale(0.99); }
+  .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 14px;
+    display: none;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESULTS */
+  .results { display: none; }
+  .results.show { display: block; }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .results-header .date { font-size: 13px; color: var(--muted); }
+  .results-header .reset-btn {
+    font-size: 13px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: underline;
+  }
+
+  /* KCAL CARD */
+  .kcal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 10px;
+  }
+  .kcal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+  .kcal-label { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .kcal-number { font-size: 42px; font-weight: 300; letter-spacing: -2px; line-height: 1; }
+  .kcal-unit { font-size: 16px; color: var(--muted); font-weight: 400; }
+  .kcal-goal { font-size: 13px; color: var(--muted); text-align: right; }
+  .kcal-goal strong { color: var(--text); font-weight: 500; }
+  .progress-bg {
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--text);
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+  .progress-fill.over { background: #E53E3E; }
+
+  /* MACRO GRID */
+  .macro-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .macro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem;
+  }
+  .macro-name { font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .macro-val { font-size: 26px; font-weight: 300; letter-spacing: -1px; line-height: 1; }
+  .macro-unit { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+  /* SUMMARY */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 10px;
+  }
+  .summary-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .summary-text { font-size: 14px; line-height: 1.7; color: var(--text); }
+
+  /* STATUS BADGE */
+  .status-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .badge-good { background: var(--green-bg); color: var(--green); }
+  .badge-warn { background: var(--amber-bg); color: var(--amber); }
+  .badge-over { background: var(--red-bg); color: var(--red); }
+
+  /* HISTORY */
+  .history-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .history-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .history-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .history-item .day { color: var(--muted); }
+  .history-item .val { font-weight: 500; }
+  .history-empty { font-size: 13px; color: var(--muted); font-style: italic; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    padding-bottom: 2rem;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>NutriLog</h1>
+    <p>Napíš čo si jedol — ja spočítam zvyšok</p>
+  </div>
+
+  <!-- API KEY SETUP -->
+  <div class="setup-card" id="setupCard">
+    <h3>Nastav API kľúč</h3>
+    <p>Potrebuješ kľúč z console.anthropic.com → API Keys. Kľúč sa uloží len vo tvojom prehliadači.</p>
+    <div class="key-row">
+      <input type="password" class="key-input" id="apiKeyInput" placeholder="sk-ant-api03-...">
+      <button class="key-btn" onclick="saveKey()">Uložiť</button>
+    </div>
+    <div class="key-saved" id="keySaved">✓ Kľúč uložený</div>
+  </div>
+
+  <!-- FOOD INPUT -->
+  <div class="input-card">
+    <span class="input-label">Čo si dnes jedol?</span>
+    <textarea id="foodInput" placeholder="napr. Raňajky: ovsená kaša s banánom a medom
+Obed: kurací rezeň 150g s ryžou
+Večera: vajíčka so syrom a zeleninou
+Snack: jablko, hrsť orechov"></textarea>
+    <div class="goal-row">
+      <label>Denný cieľ:</label>
+      <input type="number" id="goalInput" value="2000" min="500" max="5000">
+      <span>kcal</span>
+    </div>
+  </div>
+
+  <button class="analyze-btn" onclick="analyze()" id="analyzeBtn">Analyzovať jedlá</button>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Analyzujem tvoje jedlá...
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <span class="date" id="dateLabel">Utorok, 17. marca</span>
+      <button class="reset-btn" onclick="resetForm()">Nový deň</button>
+    </div>
+
+    <div class="kcal-card">
+      <div class="kcal-top">
+        <div>
+          <div class="kcal-label">Kalórie celkom</div>
+          <div class="kcal-number"><span id="kcalVal">0</span> <span class="kcal-unit">kcal</span></div>
+        </div>
+        <div class="kcal-goal">cieľ <strong id="kcalGoalDisplay">2000</strong> kcal</div>
+      </div>
+      <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="macro-grid">
+      <div class="macro-card">
+        <div class="macro-name">Bielkoviny</div>
+        <div class="macro-val"><span id="protVal">0</span> <span class="macro-unit">g</span></div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-name">Sacharidy</div>
+        <div class="macro-val"><span id="carbVal">0</span> <span class="macro-unit">g</span></div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-name">Tuky</div>
+        <div class="macro-val"><span id="fatVal">0</span> <span class="macro-unit">g</span></div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-name">Vláknina</div>
+        <div class="macro-val"><span id="fibVal">0</span> <span class="macro-unit">g</span></div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Zhrnutie dňa</div>
+      <span class="status-badge" id="statusBadge"></span>
+      <div class="summary-text" id="summaryText"></div>
+    </div>
+
+    <div class="history-card" id="historyCard">
+      <div class="history-label">História</div>
+      <div id="historyList"><div class="history-empty">Zatiaľ žiadna história</div></div>
+    </div>
+  </div>
+
+  <div class="footer">NutriLog · powered by Claude AI</div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'nutrilog_history';
+  const API_KEY_STORAGE = 'nutrilog_api_key';
+
+  function saveKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (!key.startsWith('sk-ant')) { alert('Kľúč vyzerá nesprávne. Skontroluj ho.'); return; }
+    localStorage.setItem(API_KEY_STORAGE, key);
+    document.getElementById('keySaved').style.display = 'block';
+    setTimeout(() => document.getElementById('setupCard').style.display = 'none', 800);
+  }
+
+  function getKey() { return localStorage.getItem(API_KEY_STORAGE) || ''; }
+
+  window.onload = () => {
+    if (getKey()) document.getElementById('setupCard').style.display = 'none';
+    renderHistory();
+    const days = ['Nedeľa','Pondelok','Utorok','Streda','Štvrtok','Piatok','Sobota'];
+    const months = ['januára','februára','marca','apríla','mája','júna','júla','augusta','septembra','októbra','novembra','decembra'];
+    const now = new Date();
+    document.getElementById('dateLabel').textContent = days[now.getDay()] + ', ' + now.getDate() + '. ' + months[now.getMonth()];
+  };
+
+  async function analyze() {
+    const key = getKey();
+    if (!key) { alert('Najprv ulož API kľúč hore.'); document.getElementById('setupCard').style.display = 'block'; return; }
+    const food = document.getElementById('foodInput').value.trim();
+    if (!food) { alert('Najprv napíš čo si jedol :)'); return; }
+    const goal = parseInt(document.getElementById('goalInput').value) || 2000;
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('analyzeBtn').disabled = true;
+
+    const prompt = `Používateľ zjedol toto: "${food}"
+
+Vráť IBA JSON v tomto formáte (bez markdown, bez komentárov, bez akéhokoľvek iného textu):
+{
+  "kcal": 1800,
+  "protein": 95,
+  "carbs": 180,
+  "fat": 55,
+  "fiber": 22,
+  "summary": "2-3 vety po slovensky – zhrnutie ako vyzeral deň, čoho bolo dosť, čoho malo.",
+  "status": "good"
+}
+
+Status môže byť: "good" (vyvážený deň), "warn" (niečo chýba), "over" (príliš veľa kalórií nad ${goal}).`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 600,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) { alert('Chyba API: ' + data.error.message); return; }
+
+      const raw = data.content.map(i => i.text || '').join('');
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const d = JSON.parse(clean);
+
+      document.getElementById('kcalVal').textContent = d.kcal.toLocaleString('sk');
+      document.getElementById('protVal').textContent = Math.round(d.protein);
+      document.getElementById('carbVal').textContent = Math.round(d.carbs);
+      document.getElementById('fatVal').textContent = Math.round(d.fat);
+      document.getElementById('fibVal').textContent = Math.round(d.fiber);
+      document.getElementById('summaryText').textContent = d.summary;
+      document.getElementById('kcalGoalDisplay').textContent = goal.toLocaleString('sk');
+
+      const pct = Math.min(Math.round((d.kcal / goal) * 100), 100);
+      const fill = document.getElementById('progressFill');
+      fill.style.width = pct + '%';
+      fill.classList.toggle('over', d.kcal > goal);
+
+      const badge = document.getElementById('statusBadge');
+      if (d.status === 'good') { badge.textContent = '✓ Vyvážený deň'; badge.className = 'status-badge badge-good'; }
+      else if (d.status === 'warn') { badge.textContent = '⚠ Niečo chýba'; badge.className = 'status-badge badge-warn'; }
+      else { badge.textContent = '↑ Nad cieľom'; badge.className = 'status-badge badge-over'; }
+
+      saveToHistory(d.kcal);
+      renderHistory();
+      document.getElementById('results').classList.add('show');
+
+    } catch(e) {
+      alert('Nastala chyba. Skontroluj API kľúč alebo skús znova.');
+      console.error(e);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('analyzeBtn').disabled = false;
+    }
+  }
+
+  function saveToHistory(kcal) {
+    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const today = new Date().toLocaleDateString('sk');
+    const existing = history.findIndex(h => h.date === today);
+    if (existing >= 0) history[existing].kcal = kcal;
+    else history.unshift({ date: today, kcal });
+    if (history.length > 7) history.pop();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+
+  function renderHistory() {
+    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const list = document.getElementById('historyList');
+    if (!history.length) { list.innerHTML = '<div class="history-empty">Zatiaľ žiadna história</div>'; return; }
+    list.innerHTML = history.map(h =>
+      `<div class="history-item"><span class="day">${h.date}</span><span class="val">${h.kcal.toLocaleString('sk')} kcal</span></div>`
+    ).join('');
+  }
+
+  function resetForm() {
+    document.getElementById('foodInput').value = '';
+    document.getElementById('results').classList.remove('show');
+  }
+</script>
+
+
+</body></html>
