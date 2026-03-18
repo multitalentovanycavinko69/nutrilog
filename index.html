@@ -217,8 +217,7 @@ Vráť IBA JSON v tomto formáte (bez markdown, bez komentárov, bez akéhokoľv
 Status môže byť: "good" (vyvážený deň), "warn" (niečo chýba), "over" (príliš veľa kalórií nad ${goal}).`;
 
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
-        method: 'POST',
+      const res = await fetch(`const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
