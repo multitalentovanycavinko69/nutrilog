@@ -218,9 +218,10 @@ Status môže byť: "good" (vyvážený deň), "warn" (niečo chýba), "over" (p
 
     try {
       const res = await fetch(`const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          messages: [{ role: 'user', content: prompt }],
+          model: 'llama-3.3-70b-versatile',
           generationConfig: { temperature: 0.1, maxOutputTokens: 600 }
         })
       });
@@ -228,7 +229,7 @@ Status môže byť: "good" (vyvážený deň), "warn" (niečo chýba), "over" (p
       const data = await res.json();
       if (data.error) { alert('Chyba API: ' + data.error.message); return; }
 
-      const raw = data.candidates[0].content.parts[0].text;
+      const raw = data.choices[0].message.content
       const clean = raw.replace(/```json|```/g, '').trim();
       const d = JSON.parse(clean);
 
