@@ -163,18 +163,7 @@ function getKey() {
   return localStorage.getItem(API_KEY_STORAGE) || '';
 }
 
-document.getElementById('saveKeyBtn').addEventListener('click', function() {
-  var key = document.getElementById('apiKeyInput').value.trim();
-  if (!key.startsWith('gsk_')) {
-    alert('Kľúč musí začínať gsk_');
-    return;
-  }
-  localStorage.setItem(API_KEY_STORAGE, key);
-  document.getElementById('keySaved').style.display = 'block';
-  setTimeout(function() {
-    document.getElementById('setupCard').style.display = 'none';
-  }, 800);
-});
+;
 
 document.getElementById('resetBtn').addEventListener('click', function() {
   document.getElementById('foodInput').value = '';
