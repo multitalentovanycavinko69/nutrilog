@@ -225,17 +225,15 @@ async function analyze() {
   var prompt = 'Používateľ zjedol toto: "' + food + '"\n\nVráť IBA JSON bez markdown a bez komentárov:\n{\n  "kcal": 1800,\n  "protein": 95,\n  "carbs": 180,\n  "fat": 55,\n  "fiber": 22,\n  "summary": "2-3 vety po slovensky",\n  "status": "good"\n}\n\nStatus: good=vyvážený, warn=niečo chýba, over=nad ' + goal + ' kcal.';
 
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    var res = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + key
+    
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 600
+        food: food,
+        goal: goal
       })
     });
 
@@ -245,9 +243,7 @@ async function analyze() {
       return;
     }
 
-    var raw = data.choices[0].message.content;
-    var clean = raw.replace(/```json|```/g, '').trim();
-    var d = JSON.parse(clean);
+    var d = data;
 
     document.getElementById('kcalVal').textContent = d.kcal.toLocaleString('sk');
     document.getElementById('protVal').textContent = Math.round(d.protein);
