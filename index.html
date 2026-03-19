@@ -187,11 +187,7 @@ window.addEventListener('load', function() {
 
 async function analyze() {
   var key = getKey();
-  if (!key) {
-    alert('Najprv ulož Groq API kľúč.');
-    document.getElementById('setupCard').style.display = 'block';
-    return;
-  }
+  
   var food = document.getElementById('foodInput').value.trim();
   if (!food) {
     alert('Najprv napíš čo si jedol.');
